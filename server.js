@@ -44,13 +44,14 @@ const generateOwnerEmailHTML = (data) => {
         .info { margin: 10px 0; padding: 10px; background-color: #f0f0f0; border-radius: 5px; }
         .info strong { display: inline-block; width: 120px; }
         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-        .button { display: inline-block; background-color: #1e40af; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; }
+        .button { display: inline-block; background-color: #1e40af; color: #ffffff !important; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; font-weight: bold; border: 1px solid #1e40af; }
+        .button:hover { background-color: #1e3a8a; }
       </style>
     </head>
     <body>
       <div class="container">
         <div class="header">
-          <h1>New Inquiry from Horizon Travel Hub</h1>
+          <h1>New Inquiry from Smotvisa</h1>
         </div>
         <div class="content">
           <p>You have received a new inquiry from your website. Here are the details:</p>
@@ -82,7 +83,7 @@ const generateOwnerEmailHTML = (data) => {
           </p>
         </div>
         <div class="footer">
-          <p>Horizon Travel Hub - Your Gateway to the World</p>
+          <p>Smotvisa - Your Trusted Visa Partner</p>
           <p>Powered by Nodemailer</p>
         </div>
       </div>
@@ -105,7 +106,8 @@ const generateUserEmailHTML = (data) => {
         .info { margin: 10px 0; padding: 10px; background-color: #f0f0f0; border-radius: 5px; }
         .info strong { display: inline-block; width: 120px; }
         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
-        .button { display: inline-block; background-color: #1e40af; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; }
+        .button { display: inline-block; background-color: #1e40af; color: #ffffff !important; padding: 10px 20px; text-decoration: none; border-radius: 5px; margin-top: 10px; font-weight: bold; border: 1px solid #1e40af; }
+        .button:hover { background-color: #1e3a8a; }
       </style>
     </head>
     <body>
@@ -116,7 +118,7 @@ const generateUserEmailHTML = (data) => {
         <div class="content">
           <p>Dear ${data.name},</p>
           
-          <p>Thank you for choosing Horizon Travel Hub! We have received your inquiry and our team will get back to you within 24-48 hours.</p>
+          <p>Thank you for choosing Smotvisa! We have received your inquiry and our team will get back to you within 24-48 hours.</p>
           
           <h3>Your Inquiry Details:</h3>
           
@@ -140,16 +142,16 @@ const generateUserEmailHTML = (data) => {
             <strong>Message:</strong> ${data.message}
           </div>
           
-          <p>Our team of travel experts is working on your request and will contact you shortly with personalized assistance.</p>
+          <p>Our team of visa experts is working on your request and will contact you shortly with personalized assistance.</p>
           
           <p>If you have any urgent questions, please feel free to call us at +91 12345 67890 or email us directly at ${ownerEmail}.</p>
           
           <p>
-            <a href="https://horizontravelhub.com" class="button">Visit Our Website</a>
+            <a href="https://Smotvisa.com" class="button">Visit Our Website</a>
           </p>
         </div>
         <div class="footer">
-          <p>Horizon Travel Hub - Your Gateway to the World</p>
+          <p>Smotvisa - Your Trusted Visa Partner</p>
           <p>Powered by Nodemailer</p>
         </div>
       </div>
@@ -207,7 +209,7 @@ app.get('/api/blogs', async (req, res) => {
         title: post.title,
         excerpt: post.excerpt,
         content: post.content,
-        author: post.author_name || 'Horizon Travel Hub Team',
+        author: post.author_name || 'SmotVisa Team',
         date: new Date(post.date || post.modified).toLocaleDateString('en-US', { 
           year: 'numeric', 
           month: 'short', 
@@ -289,7 +291,7 @@ app.get('/api/blogs/:slug', async (req, res) => {
       title: data.title,
       excerpt: data.excerpt,
       content: data.content,
-      author: data.author_name || 'Horizon Travel Hub Team',
+      author: data.author_name || 'SmotVisa Team',
       date: new Date(data.date || data.modified).toLocaleDateString('en-US', { 
         year: 'numeric', 
         month: 'short', 
@@ -308,33 +310,48 @@ app.get('/api/blogs/:slug', async (req, res) => {
 app.post('/api/send-email', async (req, res) => {
   try {
     const { name, email, phone, service, message } = req.body;
+    console.log('Received email request:', { name, email, phone, service, message });
 
     const mailOptionsToOwner = {
       from: process.env.SMTP_USER,
       to: ownerEmail,
-      subject: `New Inquiry from ${name} - Horizon Travel Hub`,
+      subject: `New Inquiry from ${name} - Smotvisa`,
       html: generateOwnerEmailHTML({ name, email, phone, service, message }),
     };
 
     const mailOptionsToUser = {
       from: process.env.SMTP_USER,
       to: email,
-      subject: 'Thank You for Your Inquiry - Horizon Travel Hub',
+      subject: 'Thank You for Your Inquiry - Smotvisa',
       html: generateUserEmailHTML({ name, email, phone, service, message }),
     };
 
-    await transporter.sendMail(mailOptionsToOwner);
-    await transporter.sendMail(mailOptionsToUser);
+    console.log('Sending email to owner:', ownerEmail);
+    const ownerEmailResult = await transporter.sendMail(mailOptionsToOwner);
+    console.log('Owner email sent successfully:', ownerEmailResult);
+
+    console.log('Sending email to user:', email);
+    const userEmailResult = await transporter.sendMail(mailOptionsToUser);
+    console.log('User email sent successfully:', userEmailResult);
 
     res.status(200).json({ message: 'Emails sent successfully' });
   } catch (error) {
     console.error('Error sending emails:', error);
-    res.status(500).json({ error: 'Failed to send emails' });
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      command: error.command,
+      response: error.response,
+    });
+    res.status(500).json({ 
+      error: 'Failed to send emails', 
+      details: error.message 
+    });
   }
 });
 
 app.get('/', (req, res) => {
-  res.json({ message: 'Horizon Travel Hub API server is running' });
+  res.json({ message: 'Smotvisa API server is running' });
 });
 
 app.listen(PORT, () => {
