@@ -182,7 +182,7 @@ app.get('/api/blogs', async (req, res) => {
     const transformedPosts = data.map(post => {
       return {
         id: post.slug || post.id.toString(),
-        image: `https://picsum.photos/seed/blog${post.id}/800/450`,
+        image: post.image || post.featured_image || post.thumbnail || `https://picsum.photos/seed/blog${post.id}/800/450`,
         category: 'Travel', // Default category
         title: post.title,
         excerpt: post.excerpt,
@@ -243,7 +243,7 @@ app.get('/api/blogs/:slug', async (req, res) => {
     // Transform data to match frontend format
     const transformedPost = {
       id: data.slug || data.id.toString(),
-      image: `https://picsum.photos/seed/blog${data.id}/800/450`,
+      image: data.image || data.featured_image || data.thumbnail || `https://picsum.photos/seed/blog${data.id}/800/450`,
       category: 'Travel', // Default category
       title: data.title,
       excerpt: data.excerpt,
