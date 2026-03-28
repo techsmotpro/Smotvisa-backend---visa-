@@ -166,7 +166,7 @@ app.get('/api/blogs', async (req, res) => {
     console.log('Attempting to fetch posts from Supabase');
     
     const { data, error } = await supabase
-      .from('wordpress_posts')
+      .from('new_wordpress_posts')
       .select('*')
       .order('date', { ascending: false });
 
@@ -180,36 +180,14 @@ app.get('/api/blogs', async (req, res) => {
 
     // Transform data to match frontend format
     const transformedPosts = data.map(post => {
-      // Parse category names from JSON string or use default
-      let category = 'Travel';
-      if (post.category_names) {
-        try {
-          const categoryNames = JSON.parse(post.category_names.replace(/'/g, '"'));
-          if (Array.isArray(categoryNames) && categoryNames.length > 0) {
-            category = categoryNames[0];
-          }
-        } catch (e) {
-          console.error('Error parsing category names:', e);
-        }
-      } else if (post.categories) {
-        try {
-          const categoryIds = JSON.parse(post.categories.replace(/'/g, '"'));
-          if (Array.isArray(categoryIds) && categoryIds.length > 0) {
-            category = 'Travel'; // Default if we just have IDs
-          }
-        } catch (e) {
-          console.error('Error parsing categories:', e);
-        }
-      }
-
       return {
         id: post.slug || post.id.toString(),
-        image: post.featured_image && !post.featured_image.includes('wp-json') ? post.featured_image : `https://picsum.photos/seed/blog${post.id}/800/450`,
-        category: category,
+        image: `https://picsum.photos/seed/blog${post.id}/800/450`,
+        category: 'Travel', // Default category
         title: post.title,
         excerpt: post.excerpt,
         content: post.content,
-        author: post.author_name || 'SmotVisa Team',
+        author: 'SmotVisa Team', // Default author
         date: new Date(post.date || post.modified).toLocaleDateString('en-US', { 
           year: 'numeric', 
           month: 'short', 
@@ -235,7 +213,7 @@ app.get('/api/blogs/:slug', async (req, res) => {
     
     // First try to find by slug
     let { data, error } = await supabase
-      .from('wordpress_posts')
+      .from('new_wordpress_posts')
       .select('*')
       .eq('slug', slug)
       .single();
@@ -246,7 +224,7 @@ app.get('/api/blogs/:slug', async (req, res) => {
       const numericId = parseInt(slug);
       if (!isNaN(numericId)) {
         const idResult = await supabase
-          .from('wordpress_posts')
+          .from('new_wordpress_posts')
           .select('*')
           .eq('id', numericId)
           .single();
@@ -263,35 +241,14 @@ app.get('/api/blogs/:slug', async (req, res) => {
     console.log('Found post:', data.title);
 
     // Transform data to match frontend format
-    let category = 'Travel';
-    if (data.category_names) {
-      try {
-        const categoryNames = JSON.parse(data.category_names.replace(/'/g, '"'));
-        if (Array.isArray(categoryNames) && categoryNames.length > 0) {
-          category = categoryNames[0];
-        }
-      } catch (e) {
-        console.error('Error parsing category names:', e);
-      }
-    } else if (data.categories) {
-      try {
-        const categoryIds = JSON.parse(data.categories.replace(/'/g, '"'));
-        if (Array.isArray(categoryIds) && categoryIds.length > 0) {
-          category = 'Travel'; // Default if we just have IDs
-        }
-      } catch (e) {
-        console.error('Error parsing categories:', e);
-      }
-    }
-
     const transformedPost = {
       id: data.slug || data.id.toString(),
-      image: data.featured_image && !data.featured_image.includes('wp-json') ? data.featured_image : `https://picsum.photos/seed/blog${data.id}/800/450`,
-      category: category,
+      image: `https://picsum.photos/seed/blog${data.id}/800/450`,
+      category: 'Travel', // Default category
       title: data.title,
       excerpt: data.excerpt,
       content: data.content,
-      author: data.author_name || 'SmotVisa Team',
+      author: 'SmotVisa Team', // Default author
       date: new Date(data.date || data.modified).toLocaleDateString('en-US', { 
         year: 'numeric', 
         month: 'short', 
